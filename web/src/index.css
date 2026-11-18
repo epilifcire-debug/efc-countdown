@@ -1,0 +1,46 @@
+@font-face { font-family: 'Inter'; src: url('/fonts/Inter.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Montserrat'; src: url('/fonts/Montserrat.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Roboto'; src: url('/fonts/Roboto.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/JetBrainsMono.ttf') format('truetype'); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: 'Oswald'; src: url('/fonts/Oswald.ttf') format('truetype'); font-weight: 200 700; font-display: swap; }
+@font-face { font-family: 'Orbitron'; src: url('/fonts/Orbitron.ttf') format('truetype'); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('/fonts/Poppins-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('/fonts/Poppins-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('/fonts/Poppins-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('/fonts/Poppins-ExtraBold.ttf') format('truetype'); font-weight: 800 900; font-display: swap; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: dark; }
+  html, body, #root { min-height: 100%; }
+  ::selection { background: rgba(212, 175, 55, 0.35); }
+  :focus-visible { outline: 2px solid #d4af37; outline-offset: 2px; }
+  input[type='color'] { -webkit-appearance: none; border: none; padding: 0; }
+  input[type='color']::-webkit-color-swatch-wrapper { padding: 0; }
+  input[type='color']::-webkit-color-swatch { border: none; border-radius: 6px; }
+}
+
+@layer components {
+  .card { @apply rounded-xl border border-white/[0.06] bg-ink-900 shadow-card; }
+  .card-gold { @apply rounded-xl border border-gold-dim bg-ink-900 shadow-card; }
+  .label { @apply mb-1.5 block text-sm font-medium text-white; }
+  .hint { @apply mt-1 text-xs text-muted; }
+  .field {
+    @apply h-11 w-full rounded-lg border border-white/10 bg-ink-800 px-3 text-sm text-white placeholder:text-white/35
+      transition-colors duration-150 hover:border-white/20 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-muted; }
+  .skeleton { @apply relative overflow-hidden rounded-lg bg-white/[0.05]; }
+  .skeleton::after {
+    content: ''; @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
