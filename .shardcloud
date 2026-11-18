@@ -1,0 +1,6 @@
+DISPLAY_NAME=EFC Countdown
+DESCRIPTION=Contadores em GIF para sites - by EFC Tecnologia
+MAIN=index.js
+MEMORY=512
+VERSION=LATEST
+SUBDOMAIN=efccountdown

@@ -2,6 +2,8 @@
 // - entrega o frontend (web/dist) e as fontes
 // - POST /api/gif/:id/generate  (autenticado) gera o GIF, salva no Storage e registra
 // - GET  /gif/:public_id.gif   (público) entrega o GIF; contagem regressiva é gerada ao vivo
+import v8 from 'node:v8';
+import vm from 'node:vm';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { createClient } from '@supabase/supabase-js';
@@ -11,12 +13,19 @@ import { fileURLToPath } from 'node:url';
 import { generateGif } from './gif.js';
 import { LruCache, RateLimiter } from './util.js';
 
+// Habilita gc() mesmo quando a hospedagem roda `node index.js` sem --expose-gc
+// (necessário para liberar a memória do canvas durante a geração dos GIFs).
+if (typeof globalThis.gc !== 'function') {
+  v8.setFlagsFromString('--expose_gc');
+  globalThis.gc = vm.runInNewContext('gc');
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
 const WEB_DIST = path.join(ROOT, 'web/dist');
 
 const {
-  PORT = '8080',
+  PORT = '80',
   HOST = '0.0.0.0',
   SUPABASE_URL,
   SUPABASE_ANON_KEY,

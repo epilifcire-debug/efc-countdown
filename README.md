@@ -48,10 +48,14 @@ cd server && npm run test:gif   # gera GIFs de teste em server/test-output
 
 ## Deploy na Shard Cloud
 
-1. Nova **Aplicação** a partir deste repositório (usa o `Dockerfile` da raiz), porta **8080**.
-2. Variáveis: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PUBLIC_URL`.
-3. Memória: **512 MB**. Testado: 90 GIFs pedidos ao mesmo tempo ficaram em ~300 MB de pico (fila de geração + liberação de memória entre frames). Tamanho máximo do GIF: 800×800 px.
-4. Domínio: aponte o subdomínio (ex.: `countdown.efcsys.com`) e use a mesma URL em `PUBLIC_URL`.
+O repositório já vem pronto para a Shard: `.shardcloud` na raiz, `index.js` como entrada, `package.json` com as dependências do servidor e o site já compilado em `web/dist`.
+
+1. No painel da Shard: **nova aplicação → importar do GitHub** (`epilifcire-debug/efc-countdown`) ou enviar o `.zip` do repositório.
+2. Configuração (`.shardcloud`): `MAIN=index.js`, `MEMORY=512`, `SUBDOMAIN=efccountdown`. Se o subdomínio já existir, troque no arquivo antes do primeiro envio.
+3. Variáveis de ambiente no painel: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PUBLIC_URL`. A porta vem da variável `PORT` da plataforma (padrão 80).
+4. Memória: **512 MB**. Testado: 90 GIFs pedidos ao mesmo tempo ficaram em ~300 MB de pico. Tamanho máximo do GIF: 800×800 px.
+
+Ao alterar o frontend, rode `npm run build:web` antes de enviar ao GitHub para atualizar `web/dist`. O `Dockerfile` continua disponível para hospedagens que usam imagem Docker.
 
 No Supabase → Authentication → URL Configuration: **Site URL** = `PUBLIC_URL` e adicione `PUBLIC_URL/**` em Redirect URLs. Para "Entrar com Google", ative o provedor Google com as credenciais do Google Cloud.
 

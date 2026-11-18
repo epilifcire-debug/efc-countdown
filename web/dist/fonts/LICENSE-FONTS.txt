@@ -1,0 +1,2 @@
+Fontes do Google Fonts sob a SIL Open Font License 1.1 (OFL): Inter, Montserrat, Poppins, Roboto, JetBrains Mono, Oswald, Orbitron.
+https://openfontlicense.org
