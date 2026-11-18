@@ -8,6 +8,7 @@ import { Button, Input, Skeleton } from '@/components/ui'
 import { getProfile, isAdmin, updateProfile, uploadAvatar } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { InstallApp } from '@/components/InstallApp'
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth()
@@ -96,6 +97,11 @@ export default function SettingsPage() {
               <span><span className="block text-sm font-medium">Tema</span><span className="hint block">O EFC Countdown usa o tema escuro.</span></span>
               <span className="rounded-full border border-gold-dim px-3 py-1 text-xs font-semibold text-gold">Escuro</span>
             </div>
+          </section>
+
+          <section className="card p-5 sm:p-6">
+            <h2 className="eyebrow text-white">App no celular</h2>
+            <div className="mt-4"><InstallApp variant="card" /></div>
           </section>
 
           <section className="card p-5 sm:p-6">

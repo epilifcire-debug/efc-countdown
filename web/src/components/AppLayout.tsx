@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, ListOrdered, CirclePlus, LayoutTemplate, Images, Settings, LogOut, Menu, X } from 'lucide-react'
 import { Brand } from './Brand'
+import { InstallApp } from './InstallApp'
 import { displayName, useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 
@@ -44,26 +45,28 @@ export function AppLayout() {
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-white/[0.06] bg-ink-900 lg:flex">
         <div className="border-b border-white/[0.06] px-4 py-4"><Brand to="/dashboard" /></div>
         <NavItems />
-        <div className="mt-auto border-t border-white/[0.06] px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">EFC Tecnologia</div>
+        <div className="mt-auto px-3 pb-3"><InstallApp /></div>
+        <div className="border-t border-white/[0.06] px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">EFC Tecnologia</div>
       </aside>
 
       {/* Drawer mobile */}
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-white/[0.06] bg-ink-900 animate-fade-in">
+          <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-white/[0.06] bg-ink-900 animate-fade-in" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
             <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-4">
               <Brand to="/dashboard" />
               <button onClick={() => setOpen(false)} className="rounded-md p-2 text-muted hover:text-white" aria-label="Fechar menu"><X className="h-5 w-5" /></button>
             </div>
             <NavItems onNavigate={() => setOpen(false)} />
-            <div className="mt-auto border-t border-white/[0.06] px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">EFC Tecnologia</div>
+            <div className="mt-auto px-3 pb-3"><InstallApp /></div>
+            <div className="border-t border-white/[0.06] px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">EFC Tecnologia</div>
           </aside>
         </div>
       )}
 
       <div className="lg:pl-64">
-        <div className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-white/[0.06] bg-ink/90 px-4 backdrop-blur lg:hidden">
+        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-white/[0.06] bg-ink/90 px-4 backdrop-blur lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)', minHeight: 'calc(3.5rem + env(safe-area-inset-top))' }}>
           <button onClick={() => setOpen(true)} className="-ml-1 rounded-md p-2 text-white" aria-label="Abrir menu"><Menu className="h-5 w-5" /></button>
           <Brand to="/dashboard" compact />
           <span className="font-display text-sm font-bold text-gold">EFC COUNTDOWN</span>

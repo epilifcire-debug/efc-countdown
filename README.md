@@ -29,6 +29,14 @@ Recriado fora do Lovable no padrão EFCSYS ([efcsys-skills](https://github.com/e
 
 A `service_role` existe só no servidor. O frontend usa apenas a chave pública + RLS.
 
+## PWA (instalável no celular)
+
+- `web/public/manifest.webmanifest`: nome, ícones normais e *maskable*, atalhos (Criar contador, Meus contadores), `display: standalone`.
+- `web/public/sw.js`: assets com hash e fontes em cache; páginas com rede primeiro (fallback offline simples). **Nunca** cacheia `/api`, `/gif`, `/media`, `/env.js` nem o Supabase.
+- Nova versão: aparece o aviso "Nova versão disponível → Atualizar" (sem recarregar sozinho no meio de uma edição).
+- Botão **Instalar app** na barra lateral e em Configurações; no iPhone mostra o passo a passo (Safari → Compartilhar → Adicionar à Tela de Início).
+- Ao mudar o `sw.js`, troque `VERSION` dentro dele para limpar o cache antigo.
+
 ## Banco (Supabase)
 
 Migrations em `supabase/migrations/`:
