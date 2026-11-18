@@ -19,4 +19,4 @@ COPY --from=web /app/web/dist ./web/dist
 USER node
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "server/src/index.js"]
+CMD ["node", "--expose-gc", "--max-old-space-size=256", "server/src/index.js"]

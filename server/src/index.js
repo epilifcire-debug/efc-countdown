@@ -37,6 +37,12 @@ const app = Fastify({ logger: { level: 'info' }, trustProxy: true, bodyLimit: 25
 const gifCache = new LruCache(300);
 const rowCache = new LruCache(500);
 const limiter = new RateLimiter(20, 60_000);
+const inflight = new Map(); // mesma chave pedida ao mesmo tempo = uma geração só
+
+function once(key, fn) {
+  if (!inflight.has(key)) inflight.set(key, fn().finally(() => inflight.delete(key)));
+  return inflight.get(key);
+}
 
 const publicBase = (req) => (PUBLIC_URL || `${req.protocol}://${req.headers.host}`).replace(/\/$/, '');
 
@@ -85,7 +91,7 @@ async function serveGif(req, reply) {
     const key = `${publicId}:${row.updated_at}:${bucket}`;
     buffer = gifCache.get(key);
     if (!buffer) {
-      buffer = generateGif('countdown', settings, bucket).buffer;
+      buffer = await once(key, async () => (await generateGif('countdown', settings, bucket)).buffer);
       gifCache.set(key, buffer);
     }
     if (row.status === 'active' && row.target_at && new Date(row.target_at).getTime() <= Date.now()) {
@@ -96,8 +102,7 @@ async function serveGif(req, reply) {
     const key = `${publicId}:${row.updated_at}`;
     buffer = gifCache.get(key);
     if (!buffer) {
-      buffer = await loadStoredGif(row);
-      if (!buffer) buffer = generateGif(row.type, settings).buffer;
+      buffer = await once(key, async () => (await loadStoredGif(row)) || (await generateGif(row.type, settings)).buffer);
       gifCache.set(key, buffer);
     }
     reply.header('Cache-Control', 'public, max-age=300');
@@ -141,7 +146,7 @@ app.post('/api/gif/:countdownId/generate', async (req, reply) => {
     if (!role) return reply.code(403).send({ error: 'Sem permissão para este contador.' });
   }
 
-  const result = generateGif(row.type, settingsFromRow(row));
+  const result = await generateGif(row.type, settingsFromRow(row));
   const filePath = `${row.user_id}/${row.id}/${Date.now()}.gif`;
   const up = await admin.storage.from(BUCKET).upload(filePath, result.buffer, { contentType: 'image/gif', upsert: false });
   if (up.error) {

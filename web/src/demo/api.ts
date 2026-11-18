@@ -70,7 +70,7 @@ export async function generateGif(countdownId: string): Promise<GifResult> {
   await Promise.all([`${s.fontWeight} 40px "${fam}"`, `500 40px "${fam}"`, `600 40px "${fam}"`].map((f) => document.fonts.load(f)))
   await wait(60)
   const create = (w: number, h: number) => { const el = document.createElement('canvas'); el.width = w; el.height = h; return el }
-  const r = encodeGif(create, gifenc, c.type, s)
+  const r = await encodeGif(create, gifenc, c.type, s)
   const url = URL.createObjectURL(new Blob([r.bytes as BlobPart], { type: 'image/gif' }))
   const file: GeneratedFile = {
     id: uid(), user_id: DEMO_USER_ID, countdown_id: c.id, file_type: 'gif', file_url: url, file_path: `demo/${c.id}.gif`,

@@ -439,8 +439,8 @@ export default function Editor() {
                 </div>
               </Field>
               <Grid>
-                <Input label="Largura (px)" type="number" min={80} max={1200} value={s.width} onChange={(e) => set({ width: Number(e.target.value) })} />
-                <Input label="Altura (px)" type="number" min={40} max={1200} value={s.height} onChange={(e) => set({ height: Number(e.target.value) })} />
+                <Input label="Largura (px)" type="number" min={80} max={800} value={s.width} onChange={(e) => set({ width: Number(e.target.value) })} />
+                <Input label="Altura (px)" type="number" min={40} max={800} value={s.height} onChange={(e) => set({ height: Number(e.target.value) })} />
               </Grid>
               {type !== 'alert' && (
                 <Segmented label="Qualidade / tamanho do arquivo" value={quality} onChange={(v) => v !== 'custom' && set(type === 'countdown' ? { frames: QUALITY[v].frames, fps: QUALITY[v].fps } : { fps: QUALITY[v].fps })}

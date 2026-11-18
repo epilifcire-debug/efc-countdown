@@ -23,6 +23,6 @@ declare module '@shared/templates.js' {
 }
 interface Window { __ENV?: { SUPABASE_URL: string; SUPABASE_ANON_KEY: string; PUBLIC_URL: string } }
 declare module '@shared/gif-core.js' {
-  export function encodeGif(createCanvas: (w: number, h: number) => HTMLCanvasElement, gifenc: any, type: import('@shared/render.js').CounterType, settings: Record<string, any>, nowMs?: number): { bytes: Uint8Array; width: number; height: number; frames: number }
+  export function encodeGif(createCanvas: (w: number, h: number) => HTMLCanvasElement, gifenc: any, type: import('@shared/render.js').CounterType, settings: Record<string, any>, nowMs?: number): Promise<{ bytes: Uint8Array; width: number; height: number; frames: number }>
 }
 declare module 'gifenc'

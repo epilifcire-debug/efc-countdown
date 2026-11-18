@@ -13,7 +13,7 @@ const cases = {
 }
 for (const [name, [type, s]] of Object.entries(cases)) {
   const t = Date.now()
-  const r = generateGif(type, s)
+  const r = await generateGif(type, s)
   fs.writeFileSync(`test-output/${name}.gif`, r.buffer)
   console.log(`${name}: ${r.frames} frames, ${(r.buffer.length / 1024).toFixed(0)} KB, ${Date.now() - t} ms`)
 }

@@ -12,7 +12,7 @@ function hexRgb(h) {
 }
 
 /** Reduz RGBA (premultiplicado) de (w*SS, h*SS) para (w, h) com média de caixa SSxSS. */
-function downsample(src, w, h, matte) {
+function downsample(src, w, h, matte, SS) {
   const sw = w * SS;
   const out = new Uint8ClampedArray(w * h * 4);
   const n = SS * SS;
@@ -44,28 +44,37 @@ function downsample(src, w, h, matte) {
 }
 
 /** Renderiza um frame já reduzido para a resolução final. */
-export function renderFrameRGBA(createCanvas, type, s, state) {
-  const big = createCanvas(s.width * SS, s.height * SS);
+/** Supersampling 3x; GIFs muito grandes usam 2x para limitar memória e tempo. */
+export function ssFor(s) {
+  return s.width * s.height > 640 * 640 ? 2 : SS;
+}
+
+export function renderFrameRGBA(createCanvas, type, s, state, big) {
+  const ss = ssFor(s);
+  if (!big) big = createCanvas(s.width * ss, s.height * ss);
   const ctx = big.getContext('2d');
-  drawFrame(ctx, type, s, state, SS);
-  const data = ctx.getImageData(0, 0, s.width * SS, s.height * SS).data;
+  drawFrame(ctx, type, s, state, ss);
+  const data = ctx.getImageData(0, 0, s.width * ss, s.height * ss).data;
   const matte = hexRgb(s.matteColor);
-  return downsample(data, s.width, s.height, matte);
+  return downsample(data, s.width, s.height, matte, ss);
 }
 
 /** Gera o GIF completo. Retorna { buffer, width, height, frames }. */
 /** gifenc é injetado (o servidor e o navegador resolvem o pacote de formas diferentes). */
-export function encodeGif(createCanvas, gifenc, type, settings, nowMs = Date.now()) {
+export async function encodeGif(createCanvas, gifenc, type, settings, nowMs = Date.now(), afterFrame) {
   const { GIFEncoder, quantize, applyPalette } = gifenc;
   const s = withDefaults(type, settings);
   const frames = buildFrames(type, s, nowMs);
-  const rgba = frames.map((f) => renderFrameRGBA(createCanvas, type, s, f.state));
   const transparent = s.bgMode === 'transparent';
+  const big = createCanvas(s.width * ssFor(s), s.height * ssFor(s)); // um único canvas reaproveitado
+  const render = (i) => renderFrameRGBA(createCanvas, type, s, frames[i].state, big);
 
-  // Paleta global a partir de frames amostrados: cores estáveis entre frames.
-  const sampleIdx = [...new Set([0, Math.floor(rgba.length / 3), Math.floor((2 * rgba.length) / 3), rgba.length - 1])];
-  const sample = new Uint8Array(sampleIdx.length * rgba[0].length);
-  sampleIdx.forEach((i, k) => sample.set(rgba[i], k * rgba[0].length));
+  // Paleta global a partir de até 4 frames amostrados (cores estáveis entre frames).
+  // Os frames são renderizados um a um depois, para a memória não crescer com o tamanho do GIF.
+  const sampleIdx = [...new Set([0, Math.floor(frames.length / 3), Math.floor((2 * frames.length) / 3), frames.length - 1])];
+  const first = render(0);
+  const sample = new Uint8Array(sampleIdx.length * first.length);
+  sampleIdx.forEach((i, k) => sample.set(i === 0 ? first : render(i), k * first.length));
   const format = transparent ? 'rgba4444' : 'rgb565';
   let palette, transparentIndex = 0;
   if (transparent) {
@@ -73,9 +82,9 @@ export function encodeGif(createCanvas, gifenc, type, settings, nowMs = Date.now
     transparentIndex = palette.findIndex((c) => c.length > 3 && c[3] === 0);
     if (transparentIndex < 0) { transparentIndex = palette.length; palette.push([0, 0, 0, 0]); }
   } else {
-    // 255 cores + 1 índice reservado para "pixel igual ao frame anterior" (otimização por diferença)
+    // 255 cores + 1 índice reservado para "pixel igual ao frame anterior" e cantos transparentes
     palette = quantize(sample, 255, { format });
-    transparentIndex = palette.length; // índice reservado, nunca usado por applyPalette
+    transparentIndex = palette.length;
     palette.push([255, 0, 255]);
     while (palette.length < 256) palette.push([255, 0, 255]);
   }
@@ -83,11 +92,12 @@ export function encodeGif(createCanvas, gifenc, type, settings, nowMs = Date.now
   const gif = GIFEncoder();
   const repeat = gifRepeat(type, s);
   let prev = null;
-  frames.forEach((f, i) => {
-    const index = applyPalette(rgba[i], transparent ? palette : palette.slice(0, transparentIndex), format);
+  for (let i = 0; i < frames.length; i++) {
+    const f = frames[i];
+    const px = i === 0 ? first : render(i);
+    const index = applyPalette(px, transparent ? palette : palette.slice(0, transparentIndex), format);
     if (!transparent) {
       // cantos fora do cartão arredondado ficam transparentes
-      const px = rgba[i];
       for (let j = 0; j < index.length; j++) if (px[j * 4 + 3] === 0) index[j] = transparentIndex;
     }
     let out = index;
@@ -104,7 +114,8 @@ export function encodeGif(createCanvas, gifenc, type, settings, nowMs = Date.now
       dispose: transparent ? 2 : 1,
     });
     prev = index;
-  });
+    if (afterFrame) await afterFrame(i);
+  }
   gif.finish();
   return { bytes: gif.bytes(), width: s.width, height: s.height, frames: frames.length };
 }

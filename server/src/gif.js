@@ -19,9 +19,28 @@ for (const [file, family] of Object.entries(FAMILIES)) {
   if (fs.existsSync(p)) GlobalFonts.registerFromPath(p, family);
 }
 
-/** Gera o GIF completo. Retorna { buffer, width, height, frames }. */
+const tick = () => new Promise((r) => setImmediate(r));
+let queue = Promise.resolve();
+
+/**
+ * Gera o GIF completo. Retorna { buffer, width, height, frames }.
+ * Os pixels do canvas nativo só são liberados quando o event loop roda: a cada poucos frames
+ * forçamos gc + um tick (servidor roda com --expose-gc). A fila gera um GIF por vez,
+ * mantendo o pico de memória baixo e previsível.
+ */
 export function generateGif(type, settings, nowMs = Date.now()) {
-  const r = encodeGif(createCanvas, gifenc, type, settings, nowMs);
+  const job = queue.then(() => run(type, settings, nowMs));
+  queue = job.catch(() => {});
+  return job;
+}
+
+async function run(type, settings, nowMs) {
+  const gc = typeof globalThis.gc === 'function' ? globalThis.gc : null;
+  const r = await encodeGif(createCanvas, gifenc, type, settings, nowMs, async (i) => {
+    if (i % 6 === 5) { if (gc) gc(); await tick(); }
+  });
+  if (gc) gc();
+  await tick();
   return { buffer: Buffer.from(r.bytes), width: r.width, height: r.height, frames: r.frames };
 }
 

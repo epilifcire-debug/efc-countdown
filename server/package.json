@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch --env-file=../.env src/index.js",
+    "start": "node --expose-gc src/index.js",
+    "dev": "node --expose-gc --watch --env-file=../.env src/index.js",
     "test:gif": "node scripts/test-gif.js"
   },
   "dependencies": {

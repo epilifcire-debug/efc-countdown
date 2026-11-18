@@ -153,8 +153,8 @@ export function withDefaults(type, settings = {}) {
   const merged = { ...base, ...(settings || {}) };
   if (type === 'countdown') merged.labels = { ...base.labels, ...((settings || {}).labels || {}) };
   if (type === 'alert') merged.speed = clamp(Number(merged.speed) || 1, 0.5, MAX_BLINK_HZ);
-  merged.width = clamp(Math.round(Number(merged.width) || base.width), 80, 1200);
-  merged.height = clamp(Math.round(Number(merged.height) || base.height), 40, 1200);
+  merged.width = clamp(Math.round(Number(merged.width) || base.width), 80, 800);
+  merged.height = clamp(Math.round(Number(merged.height) || base.height), 40, 800);
   return merged;
 }
 

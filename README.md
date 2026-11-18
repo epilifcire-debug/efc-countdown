@@ -50,7 +50,7 @@ cd server && npm run test:gif   # gera GIFs de teste em server/test-output
 
 1. Nova **Aplicação** a partir deste repositório (usa o `Dockerfile` da raiz), porta **8080**.
 2. Variáveis: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PUBLIC_URL`.
-3. Memória: 512 MB é suficiente.
+3. Memória: **512 MB**. Testado: 90 GIFs pedidos ao mesmo tempo ficaram em ~300 MB de pico (fila de geração + liberação de memória entre frames). Tamanho máximo do GIF: 800×800 px.
 4. Domínio: aponte o subdomínio (ex.: `countdown.efcsys.com`) e use a mesma URL em `PUBLIC_URL`.
 
 No Supabase → Authentication → URL Configuration: **Site URL** = `PUBLIC_URL` e adicione `PUBLIC_URL/**` em Redirect URLs. Para "Entrar com Google", ative o provedor Google com as credenciais do Google Cloud.
